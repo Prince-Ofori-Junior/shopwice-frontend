@@ -238,29 +238,74 @@ const normalizeGateway = (gateway: any) => {
   if (typeof gateway === 'string') {
     const id = gateway.trim();
     if (!id) return null;
-    const title = id
-      .replace(/[_-]+/g, ' ')
-      .replace(/\b\w/g, (char) => char.toUpperCase());
+
+    const customMap: Record<string, any> = {
+      cod: {
+        title: "Cash on Delivery",
+        description: "Pay when your item is delivered.",
+        icon: "/icons/cod.png",
+      },
+      bacs: {
+        title: "Pay Using Bank Account",
+        description: "Make direct transfer to our bank account.",
+        icon: "/icons/bank.png",
+      },
+      cheque: {
+        title: "Pay With Clear Cheque",
+        description: "Order is processed after cheque clearance.",
+        icon: "/icons/cheque.png",
+      },
+      paystack: {
+        title: "Pay With Paystack",
+        description: "Pay with MoMo or Payment Card.",
+        icon: "/icons/paystack.png",
+      },
+    };
+
     return {
       id,
-      title,
-      description: '',
-      icon: '',
+      title: customMap[id]?.title || id,
+      description: customMap[id]?.description || '',
+      icon: customMap[id]?.icon || '',
     };
   }
 
   if (!gateway || typeof gateway !== 'object') return null;
+
   const id = String(gateway.id ?? gateway.method_id ?? '').trim();
   if (!id) return null;
+
+  const customMap: Record<string, any> = {
+    cod: {
+      title: "Cash on Delivery",
+      description: "Pay when your item is delivered.",
+      icon: "/icons/cod.png",
+    },
+    bacs: {
+      title: "Pay Using Bank Account",
+      description: "Make direct transfer to our bank account.",
+      icon: "/icons/bank.png",
+    },
+    cheque: {
+      title: "Pay With Clear Cheque",
+      description: "Order is processed after cheque clearance.",
+      icon: "/icons/cheque.png",
+    },
+    paystack: {
+      title: "Pay With Paystack",
+      description: "Pay with MoMo or Payment Card.",
+      icon: "/icons/paystack.png",
+    },
+  };
+
   return {
     ...gateway,
     id,
-    title: String(gateway.title ?? gateway.method_title ?? gateway.name ?? id),
-    description: String(gateway.description ?? ''),
-    icon: gateway.icon ?? gateway.image ?? '',
+    title: customMap[id]?.title || String(gateway.title ?? gateway.method_title ?? gateway.name ?? id),
+    description: customMap[id]?.description || String(gateway.description ?? ''),
+    icon: customMap[id]?.icon || gateway.icon || gateway.image || '',
   };
 };
-
 const normalizeGateways = (payload: any) => {
   const list = Array.isArray(payload)
     ? payload
