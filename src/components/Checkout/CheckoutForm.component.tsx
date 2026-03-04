@@ -241,23 +241,39 @@ const normalizeGateway = (gateway: any) => {
     const title = id
       .replace(/[_-]+/g, ' ')
       .replace(/\b\w/g, (char) => char.toUpperCase());
+
+    // Attempt to use public/images/ folder
+    const iconFileName = `${id.replace(/\s+/g, '_').toLowerCase()}.jpg`; // convert "Paystack" -> "paystack.jpg"
+    const iconUrl = `/images/${iconFileName}`;
+
     return {
       id,
       title,
       description: '',
-      icon: '',
+      icon: iconUrl,
     };
   }
 
   if (!gateway || typeof gateway !== 'object') return null;
+
   const id = String(gateway.id ?? gateway.method_id ?? '').trim();
   if (!id) return null;
+
+  // Determine icon path
+  let icon = gateway.icon ?? gateway.image ?? '';
+  if (icon && !icon.startsWith('http') && !icon.startsWith('/')) {
+    // If icon is just a filename, convert it to public/images/ path
+    const fileName = icon.replace(/\s+/g, '_').toLowerCase();
+    const extension = fileName.includes('.') ? '' : '.jpg'; // add .jpg if missing
+    icon = `/images/${fileName}${extension}`;
+  }
+
   return {
     ...gateway,
     id,
     title: String(gateway.title ?? gateway.method_title ?? gateway.name ?? id),
     description: String(gateway.description ?? ''),
-    icon: gateway.icon ?? gateway.image ?? '',
+    icon,
   };
 };
 
